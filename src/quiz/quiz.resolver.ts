@@ -3,6 +3,8 @@ import { Quiz } from './entities/quiz.entity';
 import { CreateQuizInput } from './dto/create-quiz.input';
 import { QuizService } from './quiz.service';
 import { HttpException } from '@nestjs/common';
+import { SubmitQuizInput } from './dto/submit-quiz.input';
+import { SubmitQuizOutput } from './dto/submit-quiz.output';
 
 @Resolver()
 export class QuizResolver {
@@ -26,6 +28,17 @@ export class QuizResolver {
   ): Promise<Quiz> {
     try {
       return await this.quizService.findQuizzById(quiz_id, user_id);
+    } catch (e) {
+      throw new HttpException(e.message, e.status);
+    }
+  }
+
+  @Mutation(() => SubmitQuizOutput)
+  async submitQuiz(
+    @Args('submitAnswersInput') submitQuizInput: SubmitQuizInput,
+  ): Promise<{ score: number; total: number }> {
+    try {
+      return await this.quizService.submitQuiz(submitQuizInput);
     } catch (e) {
       throw new HttpException(e.message, e.status);
     }

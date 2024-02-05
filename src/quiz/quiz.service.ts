@@ -7,6 +7,7 @@ import { Question } from './entities/question.entity';
 import { Answer } from './entities/answer.entity';
 import { User } from 'src/user/entities/user.entity';
 import { QuizAccess } from './entities/quizacces.entity';
+import { SubmitQuizInput } from './dto/submit-quiz.input';
 
 @Injectable()
 export class QuizService {
@@ -95,5 +96,104 @@ export class QuizService {
         HttpStatus.FORBIDDEN,
       );
     }
+  }
+
+  async submitQuiz(
+    submitQuizInput: SubmitQuizInput,
+  ): Promise<{ score: number; total: number }> {
+    const user = await this.userRepository.findOne({
+      where: { user_id: submitQuizInput.user_id },
+    });
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    const quiz = await this.quizRepository.findOne({
+      where: { quiz_id: submitQuizInput.quiz_id },
+      relations: ['questions', 'questions.answers'],
+    });
+    if (!quiz) {
+      throw new HttpException('Quiz not found', HttpStatus.NOT_FOUND);
+    }
+
+    const questions = quiz.questions;
+    let score: number = 0;
+    let total: number = 0;
+    for (const answerInput of submitQuizInput.answers) {
+      const question = questions.find((question) => {
+        return question.question_id === answerInput.question_id;
+      });
+      if (!question) {
+        throw new HttpException('Question not found', HttpStatus.NOT_FOUND);
+      }
+      total++;
+      let localScore: number = 0;
+      if (question.question_type === 'single') {
+        if (!answerInput.answer_ids || answerInput.answer_ids.length === 0) {
+          throw new HttpException(
+            'Answer for single question not provided',
+            HttpStatus.BAD_REQUEST,
+          );
+        }
+        const correctAnswers = question.answers.find(
+          (answer) => answer.is_correct === true,
+        );
+        if (correctAnswers.answer_id === answerInput.answer_ids[0]) {
+          score++;
+        }
+      } else if (question.question_type === 'multiple') {
+        if (!answerInput.answer_ids || answerInput.answer_ids.length === 0) {
+          throw new HttpException(
+            'Answer for multiple question not provided',
+            HttpStatus.BAD_REQUEST,
+          );
+        }
+        const correctAnswers = question.answers.filter(
+          (answer) => answer.is_correct === true,
+        );
+        const correctAnswerIds = correctAnswers.map(
+          (correctAnswer) => correctAnswer.answer_id,
+        );
+        for (const answerId of answerInput.answer_ids) {
+          if (correctAnswerIds.includes(answerId)) {
+            localScore++;
+          } else {
+            localScore--;
+          }
+        }
+        score += localScore / correctAnswers.length;
+      } else if (question.question_type === 'text') {
+        if (!answerInput.answer_text) {
+          throw new HttpException(
+            'Answer for text question not provided',
+            HttpStatus.BAD_REQUEST,
+          );
+        }
+        if (
+          question.answers[0].answer_text
+            .toLowerCase()
+            .replace(/[^\w\s]|_/g, '')
+            .replace(/\s+/g, ' ')
+            .trim() ===
+          answerInput.answer_text
+            .toLowerCase()
+            .replace(/[^\w\s]|_/g, '')
+            .replace(/\s+/g, ' ')
+            .trim()
+        ) {
+          score++;
+        }
+      } else if (question.question_type === 'sorting') {
+        const correctAnswers = question.answers.sort(
+          (a, b) => a.order - b.order,
+        );
+        for (let i = 0; i < correctAnswers.length; i++) {
+          if (correctAnswers[i].answer_id === answerInput.sorted_answers[i]) {
+            localScore++;
+          }
+        }
+        score += localScore / correctAnswers.length;
+      }
+    }
+    return { score, total };
   }
 }

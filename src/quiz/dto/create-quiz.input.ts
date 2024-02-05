@@ -14,7 +14,7 @@ import { QuestionType } from '../entities/question.entity';
 import { Type } from 'class-transformer';
 
 @InputType()
-export class AnswerInput {
+class AnswerInput {
   @Field(() => String)
   @IsString()
   @IsNotEmpty()
@@ -33,7 +33,7 @@ export class AnswerInput {
 }
 
 @InputType()
-export class QuestionInput {
+class QuestionInput {
   @Field(() => String)
   @IsString()
   @IsNotEmpty()

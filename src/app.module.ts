@@ -35,7 +35,7 @@ import { QuizAccess } from './quiz/entities/quizacces.entity';
           database: configService.get('DB_DATABASE'),
           entities: [User, Quiz, Question, Answer, UserAnswer, QuizAccess],
           synchronize: true,
-          logging: true,
+          logging: false,
         };
       },
     }),
