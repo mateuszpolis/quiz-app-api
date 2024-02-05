@@ -6,9 +6,11 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
+import { QuizAccess } from './quizacces.entity';
 
 @ObjectType()
 @Entity('quizzes')
@@ -32,4 +34,8 @@ export class Quiz {
   @OneToMany(() => Question, (question) => question.quiz)
   @Field(() => [Question])
   questions: Question[];
+
+  @OneToOne(() => QuizAccess, (quizAccess) => quizAccess.quiz)
+  @Field(() => [QuizAccess])
+  access: QuizAccess[];
 }

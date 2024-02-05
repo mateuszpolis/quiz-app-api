@@ -68,6 +68,17 @@ export class CreateQuizInput {
   @IsNotEmpty()
   author_id: number;
 
+  @Field(() => Boolean, { defaultValue: false })
+  @IsBoolean()
+  @IsNotEmpty()
+  is_public: boolean;
+
+  @Field(() => [ID], { nullable: true })
+  @IsArray()
+  @IsOptional()
+  @IsInt({ each: true })
+  users_with_access?: number[];
+
   @Field(() => String, { nullable: true })
   @IsString()
   @IsOptional()

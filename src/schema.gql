@@ -26,11 +26,20 @@ enum QuestionType {
   text
 }
 
+type QuizAccess {
+  access_id: ID!
+  quiz: Quiz!
+  author: User!
+  is_public: Boolean!
+  users_with_access: [ID!]
+}
+
 type Quiz {
   quiz_id: ID!
   quiz_name: String!
   description: String
   questions: [Question!]!
+  access: [QuizAccess!]!
 }
 
 type User {
@@ -39,6 +48,7 @@ type User {
   email: String!
   role: String!
   quizzes: [Quiz!]
+  access: [QuizAccess!]
 }
 
 type Query {
@@ -60,6 +70,8 @@ input CreateUserInput {
 input CreateQuizInput {
   quiz_name: String!
   author_id: ID!
+  is_public: Boolean! = false
+  users_with_access: [ID!]
   description: String
   questions: [QuestionInput!]!
 }

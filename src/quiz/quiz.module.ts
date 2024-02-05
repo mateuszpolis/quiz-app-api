@@ -7,10 +7,11 @@ import { Question } from './entities/question.entity';
 import { Answer } from './entities/answer.entity';
 import { UserAnswer } from './entities/user-answer.entity';
 import { UserModule } from 'src/user/user.module';
+import { QuizAccess } from './entities/quizacces.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Quiz, Question, Answer, UserAnswer]),
+    TypeOrmModule.forFeature([Quiz, Question, Answer, UserAnswer, QuizAccess]),
     UserModule,
   ],
   providers: [QuizService, QuizResolver],
