@@ -50,7 +50,6 @@ export class QuestionInput {
 
   @Field(() => [AnswerInput])
   @IsArray()
-  @ArrayNotEmpty()
   @ValidateNested({ each: true })
   @Type(() => AnswerInput)
   answers: AnswerInput[];

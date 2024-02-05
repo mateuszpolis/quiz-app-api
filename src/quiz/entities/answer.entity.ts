@@ -18,7 +18,7 @@ export class Answer {
   @ManyToOne(() => Question, (question) => question.answers)
   @JoinColumn({ name: 'question_id' })
   @Field(() => Question)
-  question: Question;
+  question?: Question;
 
   @Column({ nullable: true })
   @Field(() => String, { nullable: true })
@@ -26,9 +26,9 @@ export class Answer {
 
   @Column({ default: false })
   @Field(() => Boolean)
-  is_correct: boolean;
+  is_correct?: boolean;
 
   @Column({ nullable: true })
   @Field(() => Int, { nullable: true })
-  order: number;
+  order?: number;
 }

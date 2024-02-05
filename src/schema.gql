@@ -53,6 +53,7 @@ type User {
 
 type Query {
   findAllUsers: [User!]!
+  getQuizById(quiz_id: Float!, user_id: Float!): Quiz!
 }
 
 type Mutation {
