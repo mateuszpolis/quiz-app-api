@@ -1,25 +1,36 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Quiz } from './entities/quiz.entity';
 import { Repository } from 'typeorm';
 import { CreateQuizInput } from './dto/create-quiz.input';
 import { Question } from './entities/question.entity';
 import { Answer } from './entities/answer.entity';
+import { User } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class QuizService {
   constructor(
     @InjectRepository(Quiz)
     private quizRepository: Repository<Quiz>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
   ) {}
 
-  async createQuiz(createQuizInput: CreateQuizInput): Promise<Quiz> {
+  async create(createQuizInput: CreateQuizInput): Promise<Quiz> {
+    const author = await this.userRepository.findOne({
+      where: { user_id: createQuizInput.author_id },
+    });
+    if (!author) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    if (author.role !== 'teacher') {
+      throw new HttpException('User is not a teacher', HttpStatus.NOT_FOUND);
+    }
+
     return await this.quizRepository.manager.transaction(async (manager) => {
-      console.log('before create quiz', createQuizInput);
       const quiz = manager.create(Quiz, createQuizInput);
-      console.log('after create quiz', quiz);
       await manager.save(quiz);
-      console.log('after save quiz', quiz);
 
       for (const questionInput of createQuizInput.questions) {
         const question = manager.create(Question, {

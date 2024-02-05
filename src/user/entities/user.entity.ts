@@ -1,19 +1,27 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Quiz } from 'src/quiz/entities/quiz.entity';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @ObjectType()
 @Entity('users')
 export class User {
   @Field(() => ID)
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('increment')
   user_id: number;
+
   @Field()
   @Column({ unique: true })
   username: string;
+
   @Field()
   @Column({ unique: true })
   email: string;
+
   @Field()
   @Column()
   role: 'teacher' | 'student';
+
+  @OneToMany(() => Quiz, (quiz) => quiz.author)
+  @Field(() => [Quiz], { nullable: true })
+  quizzes: Quiz[];
 }

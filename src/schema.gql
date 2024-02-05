@@ -2,16 +2,8 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type User {
-  user_id: ID!
-  username: String!
-  email: String!
-  role: String!
-}
-
 type Answer {
   answer_id: ID!
-  question_id: ID!
   question: Question!
   answer_text: String
   is_correct: Boolean!
@@ -20,7 +12,6 @@ type Answer {
 
 type Question {
   question_id: ID!
-  quiz_id: ID!
   quiz: Quiz!
   question_text: String!
   question_type: QuestionType!
@@ -42,6 +33,14 @@ type Quiz {
   questions: [Question!]!
 }
 
+type User {
+  user_id: ID!
+  username: String!
+  email: String!
+  role: String!
+  quizzes: [Quiz!]
+}
+
 type Query {
   findAllUsers: [User!]!
 }
@@ -60,6 +59,7 @@ input CreateUserInput {
 
 input CreateQuizInput {
   quiz_name: String!
+  author_id: ID!
   description: String
   questions: [QuestionInput!]!
 }

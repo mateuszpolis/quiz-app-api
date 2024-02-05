@@ -1,4 +1,4 @@
-import { Field, InputType, Int } from '@nestjs/graphql';
+import { Field, ID, InputType, Int } from '@nestjs/graphql';
 import {
   ArrayNotEmpty,
   IsArray,
@@ -62,6 +62,11 @@ export class CreateQuizInput {
   @IsString()
   @IsNotEmpty()
   quiz_name: string;
+
+  @Field(() => ID)
+  @IsInt()
+  @IsNotEmpty()
+  author_id: number;
 
   @Field(() => String, { nullable: true })
   @IsString()
