@@ -1,17 +1,11 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { Question } from './question.entity';
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  OneToMany,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @ObjectType()
 @Entity('quizzes')
 export class Quiz {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('increment')
   @Field(() => ID)
   quiz_id: number;
 
@@ -24,7 +18,6 @@ export class Quiz {
   description: string;
 
   @OneToMany(() => Question, (question) => question.quiz)
-  @JoinColumn({ name: 'quiz_id' })
   @Field(() => [Question])
   questions: Question[];
 }

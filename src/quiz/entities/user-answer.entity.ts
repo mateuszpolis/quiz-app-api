@@ -4,30 +4,40 @@ import { User } from 'src/user/entities/user.entity';
 import { Answer } from './answer.entity';
 import {
   Column,
-  JoinColumn,
+  Entity,
   ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
 @ObjectType()
-export class UserAnswers {
+@Entity('useranswers')
+export class UserAnswer {
   @PrimaryGeneratedColumn()
   @Field(() => ID)
   user_answer_id: number;
 
+  @Column()
+  @Field(() => ID)
+  question_id: number;
+
   @ManyToOne(() => Question, (question) => question.answers)
-  @JoinColumn({ name: 'question_id' })
   @Field(() => Question)
   question: Question;
 
+  @Column()
+  @Field(() => ID)
+  user_id: number;
+
   @ManyToOne(() => User)
-  @JoinColumn({ name: 'user_id' })
   @Field(() => User)
   user: User;
 
+  @Column({ nullable: true })
+  @Field(() => ID, { nullable: true })
+  answer_id: number;
+
   @OneToOne(() => Answer, { nullable: true })
-  @JoinColumn({ name: 'answer_id' })
   @Field(() => Answer, { nullable: true })
   answer: Answer;
 

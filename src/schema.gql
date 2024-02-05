@@ -9,6 +9,39 @@ type User {
   role: String!
 }
 
+type Answer {
+  answer_id: ID!
+  question_id: ID!
+  question: Question!
+  answer_text: String
+  is_correct: Boolean!
+  order: Int
+}
+
+type Question {
+  question_id: ID!
+  quiz_id: ID!
+  quiz: Quiz!
+  question_text: String!
+  question_type: QuestionType!
+  order: Int!
+  answers: [Answer!]
+}
+
+enum QuestionType {
+  single
+  multiple
+  sorting
+  text
+}
+
+type Quiz {
+  quiz_id: ID!
+  quiz_name: String!
+  description: String
+  questions: [Question!]!
+}
+
 type Query {
   findAllUsers: [User!]!
 }
@@ -16,10 +49,30 @@ type Query {
 type Mutation {
   createUser(createUserInput: CreateUserInput!): User!
   removeUser(id: Float!): User!
+  createQuiz(createQuizInput: CreateQuizInput!): Quiz!
 }
 
 input CreateUserInput {
   username: String!
   email: String!
   role: String!
+}
+
+input CreateQuizInput {
+  quiz_name: String!
+  description: String
+  questions: [QuestionInput!]!
+}
+
+input QuestionInput {
+  question_text: String!
+  question_type: QuestionType!
+  order: Int!
+  answers: [AnswerInput!]!
+}
+
+input AnswerInput {
+  answer_text: String!
+  is_correct: Boolean = false
+  order: Int
 }

@@ -1,15 +1,19 @@
 import { Field, ID, Int, ObjectType } from '@nestjs/graphql';
 import { Question } from './question.entity';
-import { Column, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @ObjectType()
+@Entity('answers')
 export class Answer {
   @PrimaryGeneratedColumn()
   @Field(() => ID)
   answer_id: number;
 
+  @Column()
+  @Field(() => ID)
+  question_id: number;
+
   @ManyToOne(() => Question, (question) => question.answers)
-  @JoinColumn({ name: 'question_id' })
   @Field(() => Question)
   question: Question;
 

@@ -4,7 +4,6 @@ import { Answer } from './answer.entity';
 import {
   Column,
   Entity,
-  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -28,8 +27,11 @@ export class Question {
   @Field(() => ID)
   question_id: number;
 
+  @Field(() => ID)
+  @Column()
+  quiz_id: number;
+
   @ManyToOne(() => Quiz, (quiz) => quiz.questions)
-  @JoinColumn({ name: 'quiz_id' })
   @Field(() => Quiz)
   quiz: Quiz;
 
