@@ -10,7 +10,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-enum QuestionType {
+export enum QuestionType {
   single = 'single',
   multiple = 'multiple',
   sorting = 'sorting',
@@ -41,7 +41,7 @@ export class Question {
     type: 'enum',
     enum: QuestionType,
   })
-  @Field()
+  @Field(() => QuestionType)
   question_type: QuestionType;
 
   @Column()
