@@ -42,6 +42,7 @@ import { QuizResult } from './quiz/entities/quiz-result.entity';
             UserAnswer,
             QuizAccess,
             QuizResult,
+            UserAnswer,
           ],
           synchronize: true,
           logging: false,

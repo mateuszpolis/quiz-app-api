@@ -1,14 +1,14 @@
-import { Field, ID, Int, ObjectType } from '@nestjs/graphql';
+import { Field, Float, ID, ObjectType } from '@nestjs/graphql';
 import { Question } from './question.entity';
 import { User } from 'src/user/entities/user.entity';
-import { Answer } from './answer.entity';
 import {
   Column,
   Entity,
+  JoinColumn,
   ManyToOne,
-  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Quiz } from './quiz.entity';
 
 @ObjectType()
 @Entity('useranswers')
@@ -17,35 +17,34 @@ export class UserAnswer {
   @Field(() => ID)
   user_answer_id: number;
 
-  @Column()
-  @Field(() => ID)
-  question_id: number;
-
-  @ManyToOne(() => Question, (question) => question.answers)
-  @Field(() => Question)
-  question: Question;
-
-  @Column()
-  @Field(() => ID)
-  user_id: number;
-
   @ManyToOne(() => User)
+  @JoinColumn({ name: 'user_id' })
   @Field(() => User)
   user: User;
 
-  @Column({ nullable: true })
-  @Field(() => ID, { nullable: true })
-  answer_id: number;
+  @ManyToOne(() => Quiz)
+  @JoinColumn({ name: 'quiz_id' })
+  @Field(() => Quiz)
+  quiz: Quiz;
 
-  @OneToOne(() => Answer, { nullable: true })
-  @Field(() => Answer, { nullable: true })
-  answer: Answer;
+  @ManyToOne(() => Question, (question) => question.answers)
+  @JoinColumn({ name: 'question_id' })
+  @Field(() => Question)
+  question: Question;
+
+  @Column('int', { array: true, nullable: true })
+  @Field(() => [ID], { nullable: true })
+  answer_ids?: number[];
 
   @Column({ nullable: true })
   @Field(() => String, { nullable: true })
-  custom_answer_text: string;
+  answer_text?: string;
 
   @Column('int', { array: true, nullable: true })
-  @Field(() => [Int], { nullable: true })
-  sorted_answers: number[];
+  @Field(() => [ID], { nullable: true })
+  sorted_answers?: number[];
+
+  @Column()
+  @Field(() => Float)
+  score: number;
 }

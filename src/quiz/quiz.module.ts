@@ -19,6 +19,7 @@ import { QuizResult } from './entities/quiz-result.entity';
       UserAnswer,
       QuizAccess,
       QuizResult,
+      UserAnswer,
     ]),
     UserModule,
   ],
