@@ -85,8 +85,7 @@ type SubmitQuizOutput {
 type QuizResultsOutput {
   score: Float!
   total: Float!
-  quiz_id: ID!
-  user_id: ID!
+  user: User!
   user_answers: [UserAnswer!]
 }
 

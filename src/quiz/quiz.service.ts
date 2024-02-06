@@ -302,8 +302,7 @@ export class QuizService {
     return {
       score: quizResult.score,
       total: quizResult.total,
-      quiz_id: quizResult.quiz.quiz_id,
-      user_id: quizResult.author.user_id,
+      user: user,
       user_answers: userAnswers,
     };
   }
@@ -338,11 +337,13 @@ export class QuizService {
         where: { quiz: quiz, user: quizResult.author },
         relations: ['question', 'question.answers'],
       });
+      const user = await this.userRepository.findOne({
+        where: { user_id: quizResult.author.user_id },
+      });
       returnResults.push({
         score: quizResult.score,
         total: quizResult.total,
-        quiz_id: quizResult.quiz.quiz_id,
-        user_id: quizResult.author.user_id,
+        user: user,
         user_answers: userAnswers,
       });
     }

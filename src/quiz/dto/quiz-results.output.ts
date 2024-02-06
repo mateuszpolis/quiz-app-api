@@ -1,6 +1,7 @@
-import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { Field, ObjectType } from '@nestjs/graphql';
 import { UserAnswer } from '../entities/user-answer.entity';
-import { IsArray, IsOptional } from 'class-validator';
+import { IsArray } from 'class-validator';
+import { User } from 'src/user/entities/user.entity';
 
 @ObjectType()
 export class QuizResultsOutput {
@@ -10,12 +11,8 @@ export class QuizResultsOutput {
   @Field(() => Number)
   total: number;
 
-  @Field(() => ID)
-  quiz_id: number;
-
-  @Field(() => ID)
-  @IsOptional()
-  user_id?: number;
+  @Field(() => User)
+  user: User;
 
   @Field(() => [UserAnswer], { nullable: true })
   @IsArray()
