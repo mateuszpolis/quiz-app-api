@@ -9,6 +9,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { UserAnswer } from './user-answer.entity';
 
 export enum QuestionType {
   single = 'single',
@@ -51,4 +52,8 @@ export class Question {
   @OneToMany(() => Answer, (answer) => answer.question)
   @Field(() => [Answer], { nullable: true })
   answers: Answer[];
+
+  @OneToMany(() => UserAnswer, (userAnswer) => userAnswer.user)
+  @Field(() => [UserAnswer], { nullable: true })
+  user_anwers: UserAnswer[];
 }

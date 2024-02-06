@@ -10,6 +10,17 @@ type Answer {
   order: Int
 }
 
+type UserAnswer {
+  user_answer_id: ID!
+  user: User!
+  quiz: Quiz!
+  question: Question!
+  answer_ids: [ID!]
+  answer_text: String
+  sorted_answers: [ID!]
+  score: Float!
+}
+
 type Question {
   question_id: ID!
   quiz: Quiz!
@@ -17,6 +28,7 @@ type Question {
   question_type: QuestionType!
   order: Int!
   answers: [Answer!]
+  user_anwers: [UserAnswer!]
 }
 
 enum QuestionType {
@@ -49,6 +61,7 @@ type Quiz {
   questions: [Question!]!
   access: [QuizAccess!]!
   quiz_results: [QuizResult!]!
+  answers: [UserAnswer!]
 }
 
 type User {
@@ -59,6 +72,7 @@ type User {
   quizzes: [Quiz!]
   access: [QuizAccess!]
   quiz_results: [Quiz!]
+  answers: [UserAnswer!]
 }
 
 type SubmitQuizOutput {
@@ -68,11 +82,19 @@ type SubmitQuizOutput {
   user_id: ID!
 }
 
+type QuizResultsOutput {
+  score: Float!
+  total: Float!
+  quiz_id: ID!
+  user_id: ID!
+  user_answers: [UserAnswer!]
+}
+
 type Query {
   findAllUsers: [User!]!
   getQuizById(quiz_id: Float!, user_id: Float!): Quiz!
-  getQuizResultStudent(quiz_id: Float!, user_id: Float!): QuizResult!
-  getQuizResultsTeacher(quiz_id: Float!, user_id: Float!): [QuizResult!]!
+  getQuizResultStudent(quiz_id: Float!, user_id: Float!): QuizResultsOutput!
+  getQuizResultsTeacher(quiz_id: Float!, user_id: Float!): [QuizResultsOutput!]!
 }
 
 type Mutation {

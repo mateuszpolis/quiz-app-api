@@ -12,6 +12,7 @@ import {
 import { User } from 'src/user/entities/user.entity';
 import { QuizAccess } from './quizacces.entity';
 import { QuizResult } from './quiz-result.entity';
+import { UserAnswer } from './user-answer.entity';
 
 @ObjectType()
 @Entity('quizzes')
@@ -43,4 +44,8 @@ export class Quiz {
   @OneToMany(() => QuizResult, (result) => result.quiz)
   @Field(() => [QuizResult])
   quiz_results: QuizResult[];
+
+  @OneToMany(() => UserAnswer, (userAnswer) => userAnswer.user)
+  @Field(() => [UserAnswer], { nullable: true })
+  answers: UserAnswer[];
 }

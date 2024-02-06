@@ -5,7 +5,7 @@ import { QuizService } from './quiz.service';
 import { HttpException } from '@nestjs/common';
 import { SubmitQuizInput } from './dto/submit-quiz.input';
 import { SubmitQuizOutput } from './dto/submit-quiz.output';
-import { QuizResult } from './entities/quiz-result.entity';
+import { QuizResultsOutput } from './dto/quiz-results.output';
 
 @Resolver()
 export class QuizResolver {
@@ -45,11 +45,11 @@ export class QuizResolver {
     }
   }
 
-  @Query(() => QuizResult)
+  @Query(() => QuizResultsOutput)
   async getQuizResultStudent(
     @Args('quiz_id') quiz_id: number,
     @Args('user_id') user_id: number,
-  ): Promise<QuizResult> {
+  ): Promise<QuizResultsOutput> {
     try {
       return await this.quizService.getResultStudent(quiz_id, user_id);
     } catch (e) {
@@ -57,11 +57,11 @@ export class QuizResolver {
     }
   }
 
-  @Query(() => [QuizResult])
+  @Query(() => [QuizResultsOutput])
   async getQuizResultsTeacher(
     @Args('quiz_id') quiz_id: number,
     @Args('user_id') user_id: number,
-  ): Promise<QuizResult[]> {
+  ): Promise<QuizResultsOutput[]> {
     try {
       return await this.quizService.getResultsTeacher(quiz_id, user_id);
     } catch (e) {

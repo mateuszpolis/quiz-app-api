@@ -1,6 +1,7 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { Quiz } from 'src/quiz/entities/quiz.entity';
 import { QuizAccess } from 'src/quiz/entities/quizacces.entity';
+import { UserAnswer } from 'src/quiz/entities/user-answer.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @ObjectType()
@@ -33,4 +34,8 @@ export class User {
   @OneToMany(() => Quiz, (quiz) => quiz.author)
   @Field(() => [Quiz], { nullable: true })
   quiz_results: Quiz[];
+
+  @OneToMany(() => UserAnswer, (userAnswer) => userAnswer.user)
+  @Field(() => [UserAnswer], { nullable: true })
+  answers: UserAnswer[];
 }

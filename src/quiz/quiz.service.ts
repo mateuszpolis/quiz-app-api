@@ -10,6 +10,7 @@ import { QuizAccess } from './entities/quizacces.entity';
 import { SubmitQuizInput } from './dto/submit-quiz.input';
 import { QuizResult } from './entities/quiz-result.entity';
 import { UserAnswer } from './entities/user-answer.entity';
+import { QuizResultsOutput } from './dto/quiz-results.output';
 
 @Injectable()
 export class QuizService {
@@ -22,6 +23,8 @@ export class QuizService {
     private readonly quizAccessRepository: Repository<QuizAccess>,
     @InjectRepository(QuizResult)
     private readonly quizResultRepository: Repository<QuizResult>,
+    @InjectRepository(UserAnswer)
+    private readonly userAnswerRepository: Repository<UserAnswer>,
     @InjectEntityManager()
     private readonly entityManager: EntityManager,
   ) {}
@@ -257,7 +260,7 @@ export class QuizService {
   async getResultStudent(
     quiz_id: number,
     user_id: number,
-  ): Promise<QuizResult> {
+  ): Promise<QuizResultsOutput> {
     const quiz = await this.quizRepository.findOne({
       where: { quiz_id: quiz_id },
     });
@@ -288,13 +291,27 @@ export class QuizService {
     if (!quizResult) {
       throw new HttpException('Result not found', HttpStatus.NOT_FOUND);
     }
-    return quizResult;
+    const userAnswers = await this.userAnswerRepository.find({
+      where: { quiz: quiz, user: user },
+      relations: ['question', 'question.answers'],
+    });
+    if (userAnswers.length === 0) {
+      throw new HttpException('User answers not found', HttpStatus.NOT_FOUND);
+    }
+
+    return {
+      score: quizResult.score,
+      total: quizResult.total,
+      quiz_id: quizResult.quiz.quiz_id,
+      user_id: quizResult.author.user_id,
+      user_answers: userAnswers,
+    };
   }
 
   async getResultsTeacher(
     quiz_id: number,
     teacher_id: number,
-  ): Promise<QuizResult[]> {
+  ): Promise<QuizResultsOutput[]> {
     const quiz = await this.quizRepository.findOne({
       where: { quiz_id: quiz_id },
       relations: ['author'],
@@ -312,6 +329,24 @@ export class QuizService {
       where: { quiz: quiz },
       relations: ['quiz', 'author'],
     });
-    return quizResults;
+    if (quizResults.length === 0) {
+      throw new HttpException('Results not found', HttpStatus.NOT_FOUND);
+    }
+    const returnResults: QuizResultsOutput[] = [];
+    for (const quizResult of quizResults) {
+      const userAnswers = await this.userAnswerRepository.find({
+        where: { quiz: quiz, user: quizResult.author },
+        relations: ['question', 'question.answers'],
+      });
+      returnResults.push({
+        score: quizResult.score,
+        total: quizResult.total,
+        quiz_id: quizResult.quiz.quiz_id,
+        user_id: quizResult.author.user_id,
+        user_answers: userAnswers,
+      });
+    }
+
+    return returnResults;
   }
 }
