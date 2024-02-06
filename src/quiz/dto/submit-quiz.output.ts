@@ -1,4 +1,5 @@
-import { ObjectType, Field } from '@nestjs/graphql';
+import { ObjectType, Field, ID } from '@nestjs/graphql';
+import { IsOptional } from 'class-validator';
 
 @ObjectType()
 export class SubmitQuizOutput {
@@ -7,4 +8,11 @@ export class SubmitQuizOutput {
 
   @Field(() => Number)
   total: number;
+
+  @Field(() => ID)
+  quiz_id: number;
+
+  @Field(() => ID)
+  @IsOptional()
+  user_id?: number;
 }

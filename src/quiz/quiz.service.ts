@@ -226,4 +226,65 @@ export class QuizService {
 
     return { score, total };
   }
+
+  async getResultStudent(
+    quiz_id: number,
+    user_id: number,
+  ): Promise<QuizResult> {
+    const quiz = await this.quizRepository.findOne({
+      where: { quiz_id: quiz_id },
+    });
+    if (!quiz) {
+      throw new HttpException('Quiz not found', HttpStatus.NOT_FOUND);
+    }
+    const user = await this.userRepository.findOne({
+      where: { user_id: user_id },
+    });
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    const quizAccess = await this.quizAccessRepository.findOne({
+      where: { quiz: quiz },
+    });
+    if (!quizAccess.is_public) {
+      if (!quizAccess.users_with_access.includes(user.user_id)) {
+        throw new HttpException(
+          'User does not have access to this quiz',
+          HttpStatus.FORBIDDEN,
+        );
+      }
+    }
+    const quizResult = await this.quizResultRepository.findOne({
+      where: { quiz: quiz, author: user },
+      relations: ['quiz', 'author'],
+    });
+    if (!quizResult) {
+      throw new HttpException('Result not found', HttpStatus.NOT_FOUND);
+    }
+    return quizResult;
+  }
+
+  async getResultsTeacher(
+    quiz_id: number,
+    teacher_id: number,
+  ): Promise<QuizResult[]> {
+    const quiz = await this.quizRepository.findOne({
+      where: { quiz_id: quiz_id },
+      relations: ['author'],
+    });
+    if (!quiz) {
+      throw new HttpException('Quiz not found', HttpStatus.NOT_FOUND);
+    }
+    if (quiz.author.user_id !== teacher_id) {
+      throw new HttpException(
+        'User is not the author of the quiz',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+    const quizResults = await this.quizResultRepository.find({
+      where: { quiz: quiz },
+      relations: ['quiz', 'author'],
+    });
+    return quizResults;
+  }
 }
