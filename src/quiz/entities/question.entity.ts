@@ -25,7 +25,7 @@ registerEnumType(QuestionType, {
 @ObjectType()
 @Entity('questions')
 export class Question {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('increment')
   @Field(() => ID)
   question_id: number;
 

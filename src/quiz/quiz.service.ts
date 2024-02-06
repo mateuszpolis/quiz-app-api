@@ -29,19 +29,29 @@ export class QuizService {
     private readonly entityManager: EntityManager,
   ) {}
 
-  async create(createQuizInput: CreateQuizInput): Promise<Quiz> {
+  async create(createQuizInput: CreateQuizInput): Promise<number> {
     const author = await this.userRepository.findOne({
       where: { user_id: createQuizInput.author_id },
     });
     if (!author) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
-
     if (author.role !== 'teacher') {
       throw new HttpException('User is not a teacher', HttpStatus.NOT_FOUND);
     }
 
-    return await this.quizRepository.manager.transaction(async (manager) => {
+    const quiz = await this.quizRepository.findOne({
+      where: { quiz_name: createQuizInput.quiz_name },
+      relations: ['author'],
+    });
+    if (quiz && quiz.author.user_id === author.user_id) {
+      throw new HttpException(
+        'Quiz with this name already exists',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    return await this.entityManager.transaction(async (manager) => {
       const quiz = manager.create(Quiz, {
         ...createQuizInput,
         author: author,
@@ -63,7 +73,8 @@ export class QuizService {
           ...questionInput,
           quiz: quiz,
         });
-        await manager.save(question);
+        await manager.save(Question, question, { reload: false });
+        console.log(question);
 
         if (!questionInput.answers || questionInput.answers.length === 0) {
           continue;
@@ -72,14 +83,13 @@ export class QuizService {
         for (const answerInput of questionInput.answers) {
           const answer = manager.create(Answer, {
             ...answerInput,
-            question_id: question.question_id,
             question: question,
           });
-          await manager.save(answer);
+          await manager.save(Answer, answer, { reload: false });
         }
       }
 
-      return quiz;
+      return quiz.quiz_id;
     });
   }
 

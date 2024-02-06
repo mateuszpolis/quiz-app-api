@@ -100,7 +100,7 @@ type Query {
 type Mutation {
   createUser(createUserInput: CreateUserInput!): User!
   removeUser(id: Float!): User!
-  createQuiz(createQuizInput: CreateQuizInput!): Quiz!
+  createQuiz(createQuizInput: CreateQuizInput!): ID!
   submitQuiz(submitAnswersInput: SubmitQuizInput!): SubmitQuizOutput!
 }
 
