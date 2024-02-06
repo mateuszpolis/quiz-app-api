@@ -1,4 +1,4 @@
-import { Field, ID, Int, ObjectType, registerEnumType } from '@nestjs/graphql';
+import { Field, ID, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { Quiz } from './quiz.entity';
 import { Answer } from './answer.entity';
 import {
@@ -35,6 +35,10 @@ export class Question {
   quiz: Quiz;
 
   @Column()
+  @Field(() => Number)
+  points: number;
+
+  @Column()
   @Field(() => String)
   question_text: string;
 
@@ -44,10 +48,6 @@ export class Question {
   })
   @Field(() => QuestionType)
   question_type: QuestionType;
-
-  @Column()
-  @Field(() => Int)
-  order: number;
 
   @OneToMany(() => Answer, (answer) => answer.question)
   @Field(() => [Answer], { nullable: true })

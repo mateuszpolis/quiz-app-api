@@ -38,13 +38,13 @@ export class UserAnswer {
 
   @Column({ nullable: true })
   @Field(() => String, { nullable: true })
-  answer_text?: string;
+  answer_response?: string;
 
   @Column('int', { array: true, nullable: true })
   @Field(() => [ID], { nullable: true })
   sorted_answers?: number[];
 
-  @Column()
+  @Column('float')
   @Field(() => Float)
   score: number;
 }

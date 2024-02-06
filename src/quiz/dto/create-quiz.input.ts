@@ -17,17 +17,21 @@ import { Type } from 'class-transformer';
 class AnswerInput {
   @Field(() => String)
   @IsString()
-  @IsNotEmpty()
   answer_text: string;
 
-  @Field(() => Boolean, { defaultValue: false, nullable: true })
-  @IsBoolean()
+  @Field(() => String, { nullable: true })
   @IsOptional()
+  @IsString()
+  answer_response?: string;
+
+  @Field(() => Boolean, { defaultValue: false, nullable: true })
+  @IsOptional()
+  @IsBoolean()
   is_correct?: boolean;
 
   @Field(() => Int, { nullable: true })
-  @IsInt()
   @IsOptional()
+  @IsInt()
   @Min(1)
   order?: number;
 }
@@ -43,10 +47,11 @@ class QuestionInput {
   @IsNotEmpty()
   question_type: QuestionType;
 
-  @Field(() => Int)
+  @Field(() => Number, { defaultValue: 1 })
   @IsInt()
+  @IsNotEmpty()
   @Min(1)
-  order: number;
+  points: number;
 
   @Field(() => [AnswerInput])
   @IsArray()

@@ -23,7 +23,7 @@ class SubmitAnswerInput {
 
   @Field(() => String, { nullable: true })
   @IsOptional()
-  answer_text?: string;
+  answer_response?: string;
 
   @Field(() => [Int], { nullable: true })
   @IsOptional()

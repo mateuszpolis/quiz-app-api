@@ -20,11 +20,15 @@ export class Answer {
   @Field(() => Question)
   question?: Question;
 
-  @Column({ nullable: true })
-  @Field(() => String, { nullable: true })
+  @Column()
+  @Field(() => String)
   answer_text: string;
 
-  @Column({ default: false })
+  @Column({ nullable: true })
+  @Field(() => String, { nullable: true })
+  answer_response?: string;
+
+  @Column({ default: null })
   @Field(() => Boolean)
   is_correct?: boolean;
 

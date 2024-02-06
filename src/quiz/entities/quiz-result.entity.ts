@@ -26,11 +26,11 @@ export class QuizResult {
   @Field(() => User)
   author: User;
 
-  @Column('int')
+  @Column('float')
   @Field(() => Number)
   score: number;
 
-  @Column('int')
+  @Column('float')
   @Field(() => Number)
   total: number;
 }

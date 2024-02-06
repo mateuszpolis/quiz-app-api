@@ -72,6 +72,7 @@ export class QuizService {
         for (const answerInput of questionInput.answers) {
           const answer = manager.create(Answer, {
             ...answerInput,
+            question_id: question.question_id,
             question: question,
           });
           await manager.save(answer);
@@ -153,7 +154,7 @@ export class QuizService {
         if (!question) {
           throw new HttpException('Question not found', HttpStatus.NOT_FOUND);
         }
-        total++;
+        total += question.points;
         let questionScore: number = 0;
         if (question.question_type === 'single') {
           let localScore: number = 0;
@@ -167,8 +168,8 @@ export class QuizService {
             (answer) => answer.is_correct === true,
           );
           if (correctAnswers.answer_id === answerInput.answer_ids[0]) {
-            score++;
-            localScore++;
+            score += question.points;
+            localScore += question.points;
             questionScore = localScore;
           }
         } else if (question.question_type === 'multiple') {
@@ -192,35 +193,48 @@ export class QuizService {
               localScore--;
             }
           }
-          score += (localScore > 0 ? localScore : 0) / correctAnswers.length;
+          score +=
+            (localScore > 0 ? localScore * question.points : 0) /
+            correctAnswers.length;
           questionScore =
-            (localScore > 0 ? localScore : 0) / correctAnswers.length;
+            (localScore > 0 ? localScore * question.points : 0) /
+            correctAnswers.length;
         } else if (question.question_type === 'text') {
           let localScore: number = 0;
-          if (!answerInput.answer_text) {
+          if (!answerInput.answer_response) {
             throw new HttpException(
               'Answer for text question not provided',
               HttpStatus.BAD_REQUEST,
             );
           }
           if (
-            question.answers[0].answer_text
+            question.answers[0].answer_response
               .toLowerCase()
               .replace(/[^\w\s]|_/g, '')
               .replace(/\s+/g, ' ')
               .trim() ===
-            answerInput.answer_text
+            answerInput.answer_response
               .toLowerCase()
               .replace(/[^\w\s]|_/g, '')
               .replace(/\s+/g, ' ')
               .trim()
           ) {
-            localScore++;
-            score++;
+            localScore += question.points;
+            score += question.points;
             questionScore = localScore;
           }
         } else if (question.question_type === 'sorting') {
+          if (
+            !answerInput.sorted_answers ||
+            answerInput.sorted_answers.length !== question.answers.length
+          ) {
+            throw new HttpException(
+              'Answer for sorting question not provided',
+              HttpStatus.BAD_REQUEST,
+            );
+          }
           let localScore: number = 0;
+          console.log('1');
           const correctAnswers = question.answers.sort(
             (a, b) => a.order - b.order,
           );
@@ -229,8 +243,11 @@ export class QuizService {
               localScore++;
             }
           }
-          score += localScore / correctAnswers.length;
-          questionScore = localScore / correctAnswers.length;
+          console.log('3');
+          score += (localScore / correctAnswers.length) * question.points;
+          questionScore =
+            (localScore / correctAnswers.length) * question.points;
+          console.log('4');
         }
 
         const userAnswer = manager.create(UserAnswer, {
@@ -238,7 +255,7 @@ export class QuizService {
           quiz,
           question,
           answer_ids: answerInput.answer_ids,
-          answer_text: answerInput.answer_text,
+          answer_response: answerInput.answer_response,
           sorted_answers: answerInput.sorted_answers,
           score: questionScore > 0 ? questionScore : 0,
         });

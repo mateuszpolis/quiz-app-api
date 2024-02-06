@@ -5,7 +5,8 @@
 type Answer {
   answer_id: ID!
   question: Question!
-  answer_text: String
+  answer_text: String!
+  answer_response: String
   is_correct: Boolean!
   order: Int
 }
@@ -16,7 +17,7 @@ type UserAnswer {
   quiz: Quiz!
   question: Question!
   answer_ids: [ID!]
-  answer_text: String
+  answer_response: String
   sorted_answers: [ID!]
   score: Float!
 }
@@ -24,9 +25,9 @@ type UserAnswer {
 type Question {
   question_id: ID!
   quiz: Quiz!
+  points: Float!
   question_text: String!
   question_type: QuestionType!
-  order: Int!
   answers: [Answer!]
   user_anwers: [UserAnswer!]
 }
@@ -121,12 +122,13 @@ input CreateQuizInput {
 input QuestionInput {
   question_text: String!
   question_type: QuestionType!
-  order: Int!
+  points: Float! = 1
   answers: [AnswerInput!]!
 }
 
 input AnswerInput {
   answer_text: String!
+  answer_response: String
   is_correct: Boolean = false
   order: Int
 }
@@ -140,6 +142,6 @@ input SubmitQuizInput {
 input SubmitAnswerInput {
   question_id: Int!
   answer_ids: [Int!]
-  answer_text: String
+  answer_response: String
   sorted_answers: [Int!]
 }
