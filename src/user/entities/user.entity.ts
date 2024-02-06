@@ -29,4 +29,8 @@ export class User {
   @OneToMany(() => QuizAccess, (quizAccess) => quizAccess.author)
   @Field(() => [QuizAccess], { nullable: true })
   access: QuizAccess[];
+
+  @OneToMany(() => Quiz, (quiz) => quiz.author)
+  @Field(() => [Quiz], { nullable: true })
+  quiz_results: Quiz[];
 }

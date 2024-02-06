@@ -12,6 +12,7 @@ import { Question } from './quiz/entities/question.entity';
 import { Answer } from './quiz/entities/answer.entity';
 import { UserAnswer } from './quiz/entities/user-answer.entity';
 import { QuizAccess } from './quiz/entities/quizacces.entity';
+import { QuizResult } from './quiz/entities/quiz-result.entity';
 
 @Module({
   imports: [
@@ -33,7 +34,15 @@ import { QuizAccess } from './quiz/entities/quizacces.entity';
           username: configService.get('DB_USERNAME'),
           password: configService.get('DB_PASSWORD'),
           database: configService.get('DB_DATABASE'),
-          entities: [User, Quiz, Question, Answer, UserAnswer, QuizAccess],
+          entities: [
+            User,
+            Quiz,
+            Question,
+            Answer,
+            UserAnswer,
+            QuizAccess,
+            QuizResult,
+          ],
           synchronize: true,
           logging: false,
         };

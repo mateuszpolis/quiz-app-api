@@ -8,16 +8,19 @@ import { Answer } from './entities/answer.entity';
 import { User } from 'src/user/entities/user.entity';
 import { QuizAccess } from './entities/quizacces.entity';
 import { SubmitQuizInput } from './dto/submit-quiz.input';
+import { QuizResult } from './entities/quiz-result.entity';
 
 @Injectable()
 export class QuizService {
   constructor(
     @InjectRepository(Quiz)
-    private quizRepository: Repository<Quiz>,
+    private readonly quizRepository: Repository<Quiz>,
     @InjectRepository(User)
-    private userRepository: Repository<User>,
+    private readonly userRepository: Repository<User>,
     @InjectRepository(QuizAccess)
-    private quizAccessRepository: Repository<QuizAccess>,
+    private readonly quizAccessRepository: Repository<QuizAccess>,
+    @InjectRepository(QuizResult)
+    private readonly quizResultRepository: Repository<QuizResult>,
   ) {}
 
   async create(createQuizInput: CreateQuizInput): Promise<Quiz> {
@@ -114,6 +117,24 @@ export class QuizService {
     if (!quiz) {
       throw new HttpException('Quiz not found', HttpStatus.NOT_FOUND);
     }
+    const quizAccess = await this.quizAccessRepository.findOne({
+      where: { quiz: quiz },
+    });
+    if (!quizAccess.is_public) {
+      if (!quizAccess.users_with_access.includes(user.user_id)) {
+        throw new HttpException(
+          'User does not have access to this quiz',
+          HttpStatus.FORBIDDEN,
+        );
+      }
+    }
+
+    const quizResult = await this.quizResultRepository.findOne({
+      where: { quiz: quiz, author: user },
+    });
+    if (quizResult) {
+      throw new HttpException('Quiz already submitted', HttpStatus.BAD_REQUEST);
+    }
 
     const questions = quiz.questions;
     let score: number = 0;
@@ -160,7 +181,7 @@ export class QuizService {
             localScore--;
           }
         }
-        score += localScore / correctAnswers.length;
+        score += (localScore > 0 ? localScore : 0) / correctAnswers.length;
       } else if (question.question_type === 'text') {
         if (!answerInput.answer_text) {
           throw new HttpException(
@@ -194,6 +215,15 @@ export class QuizService {
         score += localScore / correctAnswers.length;
       }
     }
+
+    const newQuizResult = this.quizResultRepository.create({
+      quiz,
+      author: user,
+      score,
+      total,
+    });
+    await this.quizResultRepository.save(newQuizResult);
+
     return { score, total };
   }
 }

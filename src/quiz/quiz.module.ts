@@ -8,10 +8,18 @@ import { Answer } from './entities/answer.entity';
 import { UserAnswer } from './entities/user-answer.entity';
 import { UserModule } from 'src/user/user.module';
 import { QuizAccess } from './entities/quizacces.entity';
+import { QuizResult } from './entities/quiz-result.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Quiz, Question, Answer, UserAnswer, QuizAccess]),
+    TypeOrmModule.forFeature([
+      Quiz,
+      Question,
+      Answer,
+      UserAnswer,
+      QuizAccess,
+      QuizResult,
+    ]),
     UserModule,
   ],
   providers: [QuizService, QuizResolver],

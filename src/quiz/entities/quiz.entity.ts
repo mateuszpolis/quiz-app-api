@@ -11,6 +11,7 @@ import {
 } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { QuizAccess } from './quizacces.entity';
+import { QuizResult } from './quiz-result.entity';
 
 @ObjectType()
 @Entity('quizzes')
@@ -38,4 +39,8 @@ export class Quiz {
   @OneToOne(() => QuizAccess, (quizAccess) => quizAccess.quiz)
   @Field(() => [QuizAccess])
   access: QuizAccess[];
+
+  @OneToMany(() => QuizResult, (result) => result.quiz)
+  @Field(() => [QuizResult])
+  quiz_results: QuizResult[];
 }

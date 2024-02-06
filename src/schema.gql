@@ -34,12 +34,21 @@ type QuizAccess {
   users_with_access: [ID!]
 }
 
+type QuizResult {
+  result_id: String!
+  quiz: Quiz!
+  author: User!
+  score: Float!
+  total: Float!
+}
+
 type Quiz {
   quiz_id: ID!
   quiz_name: String!
   description: String
   questions: [Question!]!
   access: [QuizAccess!]!
+  quiz_results: [QuizResult!]!
 }
 
 type User {
@@ -49,6 +58,7 @@ type User {
   role: String!
   quizzes: [Quiz!]
   access: [QuizAccess!]
+  quiz_results: [Quiz!]
 }
 
 type SubmitQuizOutput {
