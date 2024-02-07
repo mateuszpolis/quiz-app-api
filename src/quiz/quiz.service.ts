@@ -424,7 +424,7 @@ export class QuizService {
     return true;
   }
 
-  async delteQuiz(quiz_id: number, user_id: number): Promise<boolean> {
+  async deleteQuiz(quiz_id: number, user_id: number): Promise<boolean> {
     const quiz = await this.quizRepository.findOne({
       where: { quiz_id: quiz_id },
       relations: ['author'],
@@ -438,7 +438,12 @@ export class QuizService {
         HttpStatus.FORBIDDEN,
       );
     }
-    await this.quizRepository.remove(quiz);
+    await this.entityManager.transaction(async (manager) => {
+      await manager.delete(Question, { quiz: quiz });
+      await manager.delete(QuizAccess, { quiz: quiz });
+      await manager.delete(QuizResult, { quiz: quiz });
+      await manager.delete(Quiz, { quiz_id: quiz_id });
+    });
     return true;
   }
 }

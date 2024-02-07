@@ -82,12 +82,12 @@ export class QuizResolver {
   }
 
   @Mutation(() => Boolean)
-  async delteQuiz(
+  async deleteQuiz(
     @Args('quiz_id') quiz_id: number,
     @Args('user_id') user_id: number,
   ): Promise<boolean> {
     try {
-      return await this.quizService.delteQuiz(quiz_id, user_id);
+      return await this.quizService.deleteQuiz(quiz_id, user_id);
     } catch (e) {
       throw new HttpException(e.message, e.status);
     }

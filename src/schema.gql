@@ -76,6 +76,13 @@ type User {
   answers: [UserAnswer!]
 }
 
+type CreateUserOutput {
+  id: ID!
+  username: String!
+  email: String!
+  role: String!
+}
+
 type SubmitQuizOutput {
   score: Float!
   total: Float!
@@ -110,12 +117,12 @@ type Query {
 }
 
 type Mutation {
-  createUser(createUserInput: CreateUserInput!): User!
-  removeUser(id: Float!): User!
+  createUser(createUserInput: CreateUserInput!): CreateUserOutput!
+  removeUser(id: Float!): CreateUserOutput!
   createQuiz(createQuizInput: CreateQuizInput!): ID!
   submitQuiz(submitAnswersInput: SubmitQuizInput!): SubmitQuizOutput!
   grantAcces(quiz_id: Float!, user_id: Float!): Boolean!
-  delteQuiz(quiz_id: Float!, user_id: Float!): Boolean!
+  deleteQuiz(quiz_id: Float!, user_id: Float!): Boolean!
 }
 
 input CreateUserInput {

@@ -3,15 +3,16 @@ import { User } from './entities/user.entity';
 import { UserService } from './user.service';
 import { CreateUserInput } from './dto/create-user.input';
 import { HttpException } from '@nestjs/common';
+import { CreateUserOutput } from './dto/create-user.output';
 
 @Resolver(() => User)
 export class UserResolver {
   constructor(private readonly userService: UserService) {}
 
-  @Mutation(() => User)
+  @Mutation(() => CreateUserOutput)
   async createUser(
     @Args('createUserInput') createUserInput: CreateUserInput,
-  ): Promise<User> {
+  ): Promise<CreateUserOutput> {
     try {
       return await this.userService.create(createUserInput);
     } catch (e) {
@@ -19,8 +20,8 @@ export class UserResolver {
     }
   }
 
-  @Mutation(() => User)
-  async removeUser(@Args('id') id: number): Promise<User> {
+  @Mutation(() => CreateUserOutput)
+  async removeUser(@Args('id') id: number): Promise<CreateUserOutput> {
     try {
       const userToRemove = await this.userService.remove(id);
       return userToRemove;

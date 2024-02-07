@@ -1,73 +1,384 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# Quiz App API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+This is the API for the Quiz App. It provides the backend functionality for managing quizzes and questions.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Prerequisites
 
-## Description
+Before running the application, make sure you have the following installed:
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- Node.js
+- npm (Node Package Manager)
 
 ## Installation
 
-```bash
-$ npm install
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/your-username/quiz-app-api.git
+   ```
+
+2. Install the dependencies:
+
+   ```bash
+   npm install
+   ```
+
+3. Create a `.env` file in the root directory and add the following environment variables:
+
+   ```env
+   DB_HOST
+   DB_PORT
+   DB_USERNAME
+   DB_PASSWORD
+   DB_DATABASE
+   ```
+
+   and specify the 'type' of the database you are using in the app.module.ts file.
+
+   ```typescript
+    TypeOrmModule.forRoot({
+      type: 'posgresql', // specify the type of database you are using, don't change the other values
+      host: process.env.DB_HOST,
+      port: process.env.DB_PORT,
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_DATABASE,
+      entities: [],
+      synchronize: true,
+    }),
+   ```
+
+4. Start the server:
+
+   ```bash
+    npm run start
+   ```
+
+5. The server will start on port 3000.
+
+   ```bash
+   Server running on port 3000
+   ```
+
+6. You can now access the API at `http://localhost:3000`.
+
+## Walkthrough of the API and examples of GraphQL queries and mutations
+
+The API has the following functionality:
+
+- Create a user
+- Delete a user
+- Create a quiz
+- Delete a quiz
+- Get questions for a quiz
+- Submit a quiz
+- Get results for a quiz
+- Grant access to a quiz
+
+### Create a user
+
+createUser(createUserInput: CreateUserInput!): CreateUserOutput!
+
+input CreateUserInput {
+username: String!
+email: String!
+role: String!
+}
+
+type CreateUserOutput {
+id: ID!
+username: String!
+email: String!
+role: String!
+}
+
+```graphql
+mutation {
+  createUser(
+    createUserInput: {
+      username: "user1"
+      email: "user1@email.com"
+      role: "student"
+    }
+  ) {
+    id
+    username
+    email
+    role
+  }
+}
 ```
 
-## Running the app
+### Delete a user
 
-```bash
-# development
-$ npm run start
+removeUser(id: Float!): CreateUserOutput!
 
-# watch mode
-$ npm run start:dev
+type CreateUserOutput {
+id: ID!
+username: String!
+email: String!
+role: String!
+}
 
-# production mode
-$ npm run start:prod
+```graphql
+mutation {
+  removeUser(id: 1) {
+    id
+    username
+    email
+    role
+  }
+}
 ```
 
-## Test
+### Create a quiz
 
-```bash
-# unit tests
-$ npm run test
+createQuiz(createQuizInput: CreateQuizInput!): ID!
 
-# e2e tests
-$ npm run test:e2e
+input CreateQuizInput {
+quiz_name: String!
+author_id: ID!
+is_public: Boolean! = false
+users_with_access: [ID!]
+description: String
+questions: [QuestionInput!]!
+}
 
-# test coverage
-$ npm run test:cov
+input QuestionInput {
+question_text: String!
+question_type: QuestionType!
+points: Float! = 1
+answers: [AnswerInput!]!
+}
+
+input AnswerInput {
+answer_text: String!
+answer_response: String
+is_correct: Boolean = false
+order: Int
+}
+
+```graphql
+mutation {
+  createQuiz(
+    createQuizInput: {
+      author_id: 1
+      is_public: true
+      quiz_name: "General Knowledge Quiz"
+      description: "A quiz testing your general knowledge"
+      questions: [
+        {
+          question_text: "What is the capital of France?"
+          question_type: single
+          points: 1
+          answers: [
+            { answer_text: "London", is_correct: false }
+            { answer_text: "Paris", is_correct: true }
+            { answer_text: "Rome", is_correct: false }
+            { answer_text: "Madrid", is_correct: false }
+          ]
+        }
+        {
+          question_text: "Which of the following programming languages are object-oriented?"
+          question_type: multiple
+          points: 2
+          answers: [
+            { answer_text: "Java", is_correct: true }
+            { answer_text: "C", is_correct: false }
+            { answer_text: "Python", is_correct: true }
+            { answer_text: "Ruby", is_correct: true }
+          ]
+        }
+        {
+          question_text: "Arrange the following events in chronological order"
+          question_type: sorting
+          points: 3
+          answers: [
+            { answer_text: "Declaration of Independence", order: 1 }
+            { answer_text: "World War II", order: 2 }
+            { answer_text: "First Moon Landing", order: 3 }
+          ]
+        }
+        {
+          question_text: "What is the famous phrase from Star Wars?"
+          question_type: text
+          points: 1
+          answers: [
+            { answer_text: "", answer_response: "May the force be with you" }
+          ]
+        }
+      ]
+    }
+  )
+}
 ```
 
-## Support
+### Delete a quiz
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+delteQuiz(quiz_id: Float!, user_id: Float!): Boolean!
 
-## Stay in touch
+```graphql
+mutation {
+  deleteQuiz(quiz_id: 1, user_id: 1)
+}
+```
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### Get questions for a quiz
 
-## License
+getQuestionsForQuiz(quiz_id: Float!, user_id: Float!): [QuestionOuptut!]!
 
-Nest is [MIT licensed](LICENSE).
+type QuestionOuptut {
+question_id: ID!
+points: Float!
+question_text: String!
+question_type: QuestionType!
+answers: [AnswerOutput!]
+}
+
+type AnswerOutput {
+answer_id: ID!
+answer_text: String!
+}
+
+```graphql
+query {
+  getQuestionsForQuiz(quiz_id: 1, user_id: 1) {
+    question_id
+    points
+    question_text
+    question_type
+    answers {
+      answer_id
+      answer_text
+    }
+  }
+}
+```
+
+### Submit a quiz
+
+submitQuiz(submitAnswersInput: SubmitQuizInput!): SubmitQuizOutput!
+
+input SubmitQuizInput {
+user_id: ID!
+quiz_id: ID!
+answers: [SubmitAnswerInput!]!
+}
+
+input SubmitAnswerInput {
+question_id: Int!
+answer_ids: [Int!]
+answer_response: String
+sorted_answers: [Int!]
+}
+
+type SubmitQuizOutput {
+score: Float!
+total: Float!
+quiz_id: ID!
+user_id: ID!
+}
+
+```graphql
+mutation {
+  submitQuiz(
+    submitAnswersInput: {
+      user_id: 1
+      quiz_id: 1
+      answers: [
+        { question_id: 1, answer_ids: [2] }
+        { question_id: 2, answer_ids: [1, 3, 4] }
+        { question_id: 3, sorted_answers: [1, 2, 3] }
+        { question_id: 4, answer_response: "May the force be with you" }
+      ]
+    }
+  ) {
+    score
+    total
+    quiz_id
+    user_id
+  }
+}
+```
+
+### Get results for a quiz
+
+#### Get results for a quiz for as a student
+
+getQuizResultStudent(quiz_id: Float!, user_id: Float!): QuizResultsOutput!
+
+type QuizResultsOutput {
+score: Float!
+total: Float!
+user: User!
+user_answers: [UserAnswer!]
+}
+
+type UserAnswer {
+user_answer_id: ID!
+user: User!
+quiz: Quiz!
+question: Question!
+answer_ids: [ID!]
+answer_response: String
+sorted_answers: [ID!]
+score: Float!
+}
+
+```graphql
+query {
+  getQuizResultStudent(quiz_id: 1, user_id: 1) {
+    score
+    total
+    user {
+      username
+      email
+      role
+    }
+    user_answers {
+      user_answer_id
+      answer_response
+      score
+      question {
+        question_text
+      }
+    }
+  }
+}
+```
+
+#### Get results for a quiz for as a teacher
+
+getQuizResultsTeacher(quiz_id: Float!, user_id: Float!): [QuizResultsOutput!]!
+
+```graphql
+query {
+  getQuizResultsTeacher(quiz_id: 1, user_id: 1) {
+    score
+    total
+    user {
+      username
+      email
+      role
+    }
+    user_answers {
+      user_answer_id
+      answer_response
+      score
+      question {
+        question_text
+      }
+    }
+  }
+}
+```
+
+### Grant access to a quiz
+
+grantAcces(quiz_id: Float!, user_id: Float!): Boolean!
+
+```graphql
+mutation {
+  grantAcces(quiz_id: 1, user_id: 1)
+}
+```
