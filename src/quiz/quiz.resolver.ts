@@ -68,4 +68,28 @@ export class QuizResolver {
       throw new HttpException(e.message, e.status);
     }
   }
+
+  @Mutation(() => Boolean)
+  async grantAcces(
+    @Args('quiz_id') quiz_id: number,
+    @Args('user_id') user_id: number,
+  ): Promise<boolean> {
+    try {
+      return await this.quizService.grantAccessToQuiz(quiz_id, user_id);
+    } catch (e) {
+      throw new HttpException(e.message, e.status);
+    }
+  }
+
+  @Mutation(() => Boolean)
+  async delteQuiz(
+    @Args('quiz_id') quiz_id: number,
+    @Args('user_id') user_id: number,
+  ): Promise<boolean> {
+    try {
+      return await this.quizService.delteQuiz(quiz_id, user_id);
+    } catch (e) {
+      throw new HttpException(e.message, e.status);
+    }
+  }
 }

@@ -2,7 +2,7 @@ import { Args, Mutation, Resolver } from '@nestjs/graphql';
 import { User } from './entities/user.entity';
 import { UserService } from './user.service';
 import { CreateUserInput } from './dto/create-user.input';
-import { Query } from '@nestjs/graphql';
+import { HttpException } from '@nestjs/common';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -12,20 +12,20 @@ export class UserResolver {
   async createUser(
     @Args('createUserInput') createUserInput: CreateUserInput,
   ): Promise<User> {
-    return await this.userService.create(createUserInput);
-  }
-
-  @Query(() => [User])
-  async findAllUsers(): Promise<User[]> {
-    return await this.userService.findAllUsers();
+    try {
+      return await this.userService.create(createUserInput);
+    } catch (e) {
+      throw new HttpException(e.message, e.status);
+    }
   }
 
   @Mutation(() => User)
   async removeUser(@Args('id') id: number): Promise<User> {
-    const userToRemove = await this.userService.remove(id);
-    if (!userToRemove) {
-      throw new Error(`User with id ${id} not found`);
+    try {
+      const userToRemove = await this.userService.remove(id);
+      return userToRemove;
+    } catch (e) {
+      throw new HttpException(e.message, e.status);
     }
-    return userToRemove;
   }
 }

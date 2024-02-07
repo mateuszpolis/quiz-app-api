@@ -392,4 +392,53 @@ export class QuizService {
 
     return returnResults;
   }
+
+  async grantAccessToQuiz(quiz_id: number, user_id: number): Promise<boolean> {
+    const quiz = await this.quizRepository.findOne({
+      where: { quiz_id: quiz_id },
+      relations: ['author'],
+    });
+    if (!quiz) {
+      throw new HttpException('Quiz not found', HttpStatus.NOT_FOUND);
+    }
+    const user = await this.userRepository.findOne({
+      where: { user_id: user_id },
+    });
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    const quizAccess = await this.quizAccessRepository.findOne({
+      where: { quiz: quiz },
+    });
+    if (quizAccess.is_public) {
+      throw new HttpException('Quiz is already public', HttpStatus.BAD_REQUEST);
+    }
+    if (quizAccess.users_with_access.includes(user.user_id)) {
+      throw new HttpException(
+        'User already has access to this quiz',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    quizAccess.users_with_access.push(user.user_id);
+    await this.quizAccessRepository.save(quizAccess);
+    return true;
+  }
+
+  async delteQuiz(quiz_id: number, user_id: number): Promise<boolean> {
+    const quiz = await this.quizRepository.findOne({
+      where: { quiz_id: quiz_id },
+      relations: ['author'],
+    });
+    if (!quiz) {
+      throw new HttpException('Quiz not found', HttpStatus.NOT_FOUND);
+    }
+    if (quiz.author.user_id !== user_id) {
+      throw new HttpException(
+        'User is not the author of the quiz',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+    await this.quizRepository.remove(quiz);
+    return true;
+  }
 }
