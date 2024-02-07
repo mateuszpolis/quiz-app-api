@@ -68,7 +68,6 @@ type Quiz {
 type User {
   user_id: ID!
   username: String!
-  email: String!
   role: String!
   quizzes: [Quiz!]
   access: [QuizAccess!]
@@ -79,7 +78,6 @@ type User {
 type CreateUserOutput {
   id: ID!
   username: String!
-  email: String!
   role: String!
 }
 
@@ -127,7 +125,6 @@ type Mutation {
 
 input CreateUserInput {
   username: String!
-  email: String!
   role: String!
 }
 

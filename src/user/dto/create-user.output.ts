@@ -9,8 +9,5 @@ export class CreateUserOutput {
   username: string;
 
   @Field()
-  email: string;
-
-  @Field()
   role: 'teacher' | 'student';
 }

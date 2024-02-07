@@ -13,12 +13,20 @@ export class UserService {
   ) {}
 
   async create(createUserInput: CreateUserInput): Promise<CreateUserOutput> {
+    const userExists = await this.usersRepository.findOne({
+      where: { username: createUserInput.username },
+    });
+    if (userExists) {
+      throw new HttpException(
+        'User with this username already exists',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     const user = this.usersRepository.create(createUserInput);
     await this.usersRepository.save(user);
     return {
       id: user.user_id,
       username: user.username,
-      email: user.email,
       role: user.role,
     };
   }
@@ -37,7 +45,6 @@ export class UserService {
     return {
       id: userToRemove.user_id,
       username: userToRemove.username,
-      email: userToRemove.email,
       role: userToRemove.role,
     };
   }

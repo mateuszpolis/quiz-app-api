@@ -5,7 +5,7 @@ import { EntityManager, Repository } from 'typeorm';
 import { CreateQuizInput } from './dto/create-quiz.input';
 import { Question } from './entities/question.entity';
 import { Answer } from './entities/answer.entity';
-import { User } from 'src/user/entities/user.entity';
+import { User } from '../user/entities/user.entity';
 import { QuizAccess } from './entities/quizacces.entity';
 import { SubmitQuizInput } from './dto/submit-quiz.input';
 import { QuizResult } from './entities/quiz-result.entity';

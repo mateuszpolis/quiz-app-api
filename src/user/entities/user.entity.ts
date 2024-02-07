@@ -1,7 +1,7 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
-import { Quiz } from 'src/quiz/entities/quiz.entity';
-import { QuizAccess } from 'src/quiz/entities/quizacces.entity';
-import { UserAnswer } from 'src/quiz/entities/user-answer.entity';
+import { Quiz } from '../../quiz/entities/quiz.entity';
+import { QuizAccess } from '../../quiz/entities/quizacces.entity';
+import { UserAnswer } from '../../quiz/entities/user-answer.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @ObjectType()
@@ -14,10 +14,6 @@ export class User {
   @Field()
   @Column({ unique: true })
   username: string;
-
-  @Field()
-  @Column({ unique: true })
-  email: string;
 
   @Field()
   @Column()

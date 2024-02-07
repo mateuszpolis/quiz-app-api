@@ -9,7 +9,7 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { User } from 'src/user/entities/user.entity';
+import { User } from '../..//user/entities/user.entity';
 import { QuizAccess } from './quizacces.entity';
 import { QuizResult } from './quiz-result.entity';
 import { UserAnswer } from './user-answer.entity';

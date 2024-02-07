@@ -1,7 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { UserAnswer } from '../entities/user-answer.entity';
 import { IsArray } from 'class-validator';
-import { User } from 'src/user/entities/user.entity';
+import { User } from '../../user/entities/user.entity';
 
 @ObjectType()
 export class QuizResultsOutput {
