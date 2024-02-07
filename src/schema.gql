@@ -90,9 +90,22 @@ type QuizResultsOutput {
   user_answers: [UserAnswer!]
 }
 
+type AnswerOutput {
+  answer_id: ID!
+  answer_text: String!
+}
+
+type QuestionOuptut {
+  question_id: ID!
+  points: Float!
+  question_text: String!
+  question_type: QuestionType!
+  answers: [AnswerOutput!]
+}
+
 type Query {
   findAllUsers: [User!]!
-  getQuizById(quiz_id: Float!, user_id: Float!): Quiz!
+  getQuestionsForQuiz(quiz_id: Float!, user_id: Float!): [QuestionOuptut!]!
   getQuizResultStudent(quiz_id: Float!, user_id: Float!): QuizResultsOutput!
   getQuizResultsTeacher(quiz_id: Float!, user_id: Float!): [QuizResultsOutput!]!
 }

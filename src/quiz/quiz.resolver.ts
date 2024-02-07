@@ -1,11 +1,11 @@
 import { Args, ID, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { Quiz } from './entities/quiz.entity';
 import { CreateQuizInput } from './dto/create-quiz.input';
 import { QuizService } from './quiz.service';
 import { HttpException } from '@nestjs/common';
 import { SubmitQuizInput } from './dto/submit-quiz.input';
 import { SubmitQuizOutput } from './dto/submit-quiz.output';
 import { QuizResultsOutput } from './dto/quiz-results.output';
+import { QuestionOuptut } from './dto/question-output';
 
 @Resolver()
 export class QuizResolver {
@@ -22,13 +22,13 @@ export class QuizResolver {
     }
   }
 
-  @Query(() => Quiz)
-  async getQuizById(
+  @Query(() => [QuestionOuptut])
+  async getQuestionsForQuiz(
     @Args('quiz_id') quiz_id: number,
     @Args('user_id') user_id: number,
-  ): Promise<Quiz> {
+  ): Promise<QuestionOuptut[]> {
     try {
-      return await this.quizService.findQuizzById(quiz_id, user_id);
+      return await this.quizService.getQuizQuestions(quiz_id, user_id);
     } catch (e) {
       throw new HttpException(e.message, e.status);
     }

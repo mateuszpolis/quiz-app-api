@@ -11,6 +11,7 @@ import { SubmitQuizInput } from './dto/submit-quiz.input';
 import { QuizResult } from './entities/quiz-result.entity';
 import { UserAnswer } from './entities/user-answer.entity';
 import { QuizResultsOutput } from './dto/quiz-results.output';
+import { QuestionOuptut } from './dto/question-output';
 
 @Injectable()
 export class QuizService {
@@ -93,7 +94,10 @@ export class QuizService {
     });
   }
 
-  async findQuizzById(quiz_id: number, user_id: number): Promise<Quiz> {
+  async getQuizQuestions(
+    quiz_id: number,
+    user_id: number,
+  ): Promise<QuestionOuptut[]> {
     const quiz = await this.quizRepository.findOne({
       where: { quiz_id: quiz_id },
       relations: ['questions', 'questions.answers'],
@@ -109,7 +113,18 @@ export class QuizService {
       quizAccess.is_public ||
       quizAccess.users_with_access.includes(user_id)
     ) {
-      return quiz;
+      const questions = quiz.questions;
+      const questionsOutput: QuestionOuptut[] = [];
+      for (const question of questions) {
+        questionsOutput.push({
+          question_id: question.question_id,
+          question_text: question.question_text,
+          question_type: question.question_type,
+          points: question.points,
+          answers: question.answers,
+        });
+      }
+      return questionsOutput;
     } else {
       throw new HttpException(
         'User does not have access',
