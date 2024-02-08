@@ -119,7 +119,7 @@ type Mutation {
   removeUser(id: Float!): CreateUserOutput!
   createQuiz(createQuizInput: CreateQuizInput!): ID!
   submitQuiz(submitAnswersInput: SubmitQuizInput!): SubmitQuizOutput!
-  grantAcces(quiz_id: Float!, user_id: Float!): Boolean!
+  grantAcces(quiz_id: Float!, user_id: Float!, teacher_id: Float!): Boolean!
   deleteQuiz(quiz_id: Float!, user_id: Float!): Boolean!
 }
 

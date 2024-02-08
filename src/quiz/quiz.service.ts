@@ -80,8 +80,6 @@ export class QuizService {
           continue;
         }
 
-        console.log(question.question_id);
-
         for (const answerInput of questionInput.answers) {
           const answer = manager.create(Answer, {
             ...answerInput,
@@ -115,7 +113,6 @@ export class QuizService {
       quizAccess.users_with_access.includes(user_id)
     ) {
       const questions = quiz.questions;
-      console.log(questions);
       const questionsOutput: QuestionOuptut[] = [];
       for (const question of questions) {
         questionsOutput.push({
@@ -125,7 +122,6 @@ export class QuizService {
           points: question.points,
           answers: question.answers,
         });
-        console.log(question.answers);
       }
       return questionsOutput;
     } else {

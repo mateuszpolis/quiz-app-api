@@ -62,6 +62,17 @@ Before running the application, make sure you have the following installed:
 
 6. You can now access the API at `http://localhost:3000`.
 
+## Testing
+
+The tests cover the functions in user and quiz resolvers and the services.
+They check if the functions are working as expected as well as the error handling.
+
+To run the tests, use the following command:
+
+```bash
+npm run test
+```
+
 ## Walkthrough of the API and examples of GraphQL queries and mutations
 
 The API has the following functionality:
@@ -375,10 +386,10 @@ query {
 
 ### Grant access to a quiz
 
-grantAcces(quiz_id: Float!, user_id: Float!): Boolean!
+grantAcces(quiz_id: Float!, user_id: Float!, teacher_id: Float!): Boolean!
 
 ```graphql
 mutation {
-  grantAcces(quiz_id: 1, user_id: 1)
+  grantAcces(quiz_id: 1, user_id: 1, teacher_id: 1)
 }
 ```
