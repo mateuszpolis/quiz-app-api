@@ -1,6 +1,6 @@
 # Quiz App API
 
-This is the API for the Quiz App. It provides the backend functionality for managing quizzes and questions.
+This is the API for the Quiz App. It provides the backend functionality for managing quizzes.
 
 ## Prerequisites
 
@@ -14,7 +14,7 @@ Before running the application, make sure you have the following installed:
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/your-username/quiz-app-api.git
+   git clone git@github.com:mateuszpolis/quiz-app-api.git
    ```
 
 2. Install the dependencies:
