@@ -44,7 +44,7 @@ import { QuizResult } from './quiz/entities/quiz-result.entity';
             QuizResult,
             UserAnswer,
           ],
-          synchronize: true,
+          synchronize: false,
           logging: false,
         };
       },
