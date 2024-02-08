@@ -15,18 +15,16 @@ import { QuizResult } from '../entities/quiz-result.entity';
 import { UserAnswer } from '../entities/user-answer.entity';
 import { Repository } from 'typeorm';
 import { HttpStatus } from '@nestjs/common';
-import { EntityManager } from 'typeorm';
+import { SubmitQuizInput } from '../dto/submit-quiz.input';
 
 describe('QuizResolver', () => {
   let quizResolver: QuizResolver;
+  let userResolver: UserResolver;
   let userRepository: Repository<User>;
   let quizRepository: Repository<Quiz>;
   let quizAccessRepository: Repository<QuizAccess>;
   let quizResultRepository: Repository<QuizResult>;
   let userAnswerRepository: Repository<UserAnswer>;
-  let questionRepository: Repository<Question>;
-  let answerRepository: Repository<Answer>;
-  let entityManagerMock: jest.Mocked<EntityManager>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -44,6 +42,7 @@ describe('QuizResolver', () => {
     }).compile();
 
     quizResolver = module.get<QuizResolver>(QuizResolver);
+    userResolver = module.get<UserResolver>(UserResolver);
     userRepository = module.get<Repository<User>>(getRepositoryToken(User));
     quizRepository = module.get<Repository<Quiz>>(getRepositoryToken(Quiz));
     quizAccessRepository = module.get<Repository<QuizAccess>>(
@@ -55,13 +54,6 @@ describe('QuizResolver', () => {
     userAnswerRepository = module.get<Repository<UserAnswer>>(
       getRepositoryToken(UserAnswer),
     );
-    questionRepository = module.get<Repository<Question>>(
-      getRepositoryToken(Question),
-    );
-    answerRepository = module.get<Repository<Answer>>(
-      getRepositoryToken(Answer),
-    );
-    entityManagerMock = module.get(EntityManager);
 
     jest.clearAllMocks();
   });
@@ -72,75 +64,22 @@ describe('QuizResolver', () => {
 
   describe('createQuiz', () => {
     it('should create a new quiz', async () => {
-      jest.spyOn(userRepository, 'findOne').mockResolvedValue({
-        user_id: 1,
-        username: 'user1',
+      const user = await userResolver.createUser({
+        username: (Math.random() + 1).toString(36).substring(7),
         role: 'teacher',
-        ...new User(),
       });
-
-      jest.spyOn(quizRepository, 'create').mockReturnValue(new Quiz());
-
-      jest.spyOn(quizRepository, 'save').mockResolvedValue({
-        quiz_id: 1,
-        quiz_name: 'Quiz 1',
-        author: {
-          user_id: 1,
-          username: 'user1',
-          role: 'teacher',
-          ...new User(),
-        },
-        ...new Quiz(),
-      });
-
-      jest
-        .spyOn(quizAccessRepository, 'create')
-        .mockReturnValue(new QuizAccess());
-
-      jest.spyOn(quizAccessRepository, 'save').mockResolvedValue({
-        quiz: {
-          quiz_id: 1,
-          quiz_name: 'Quiz 1',
-          ...new Quiz(),
-        },
-        access_id: '1',
-        ...new QuizAccess(),
-      });
-
-      jest.spyOn(questionRepository, 'create').mockReturnValue(new Question());
-
-      jest.spyOn(questionRepository, 'save').mockResolvedValue({
-        question_id: 1,
-        question_text: 'What is 1+1?',
-        question_type: QuestionType.single,
-        points: 1,
-        answers: [],
-        ...new Question(),
-      });
-
-      jest.spyOn(answerRepository, 'create').mockReturnValue(new Answer());
-
-      jest.spyOn(answerRepository, 'save').mockResolvedValue({
-        answer_id: 1,
-        answer_text: '1',
-        is_correct: false,
-        ...new Answer(),
-      });
-
-      const spyTransaction = (
-        entityManagerMock.transaction as jest.Mock
-      ).mockResolvedValue((cb) => cb(entityManagerMock));
 
       const createQuizInput: CreateQuizInput = {
-        author_id: 1,
+        author_id: user.id,
         is_public: true,
-        quiz_name: 'Quiz 1',
+        quiz_name: 'Quiz Test',
         questions: [],
       };
 
-      const result = await quizResolver.createQuiz(createQuizInput);
-
-      expect(result).toEqual(expect.any(Number));
+      const id = await quizResolver.createQuiz(createQuizInput);
+      await quizResolver.deleteQuiz(id, user.id);
+      await userResolver.removeUser(user.id);
+      expect(id).toEqual(expect.any(Number));
     });
 
     it('should throw user not found error', async () => {
@@ -353,59 +292,20 @@ describe('QuizResolver', () => {
 
   describe('removeQuiz', () => {
     it('should remove a quiz', async () => {
-      jest.spyOn(userRepository, 'findOne').mockResolvedValue({
-        user_id: 1,
-        username: 'user1',
+      const user = await userResolver.createUser({
+        username: (Math.random() + 1).toString(36).substring(7),
         role: 'teacher',
-        quizzes: [],
-        answers: [],
-        quiz_results: [],
-        access: [],
       });
 
       const createQuizInput: CreateQuizInput = {
-        author_id: 1,
+        author_id: user.id,
         is_public: true,
-        quiz_name: 'Quiz 1',
-        questions: [
-          {
-            question_text: 'What is 1+1?',
-            question_type: QuestionType.single,
-            points: 1,
-            answers: [
-              { answer_text: '1', is_correct: false },
-              { answer_text: '2', is_correct: true },
-              { answer_text: '3', is_correct: false },
-              { answer_text: '4', is_correct: false },
-            ],
-          },
-          {
-            question_text: 'What is 2+2?',
-            question_type: QuestionType.single,
-            points: 1,
-            answers: [
-              { answer_text: '1', is_correct: false },
-              { answer_text: '2', is_correct: false },
-              { answer_text: '3', is_correct: false },
-              { answer_text: '4', is_correct: true },
-            ],
-          },
-          {
-            question_text: 'Which numbers are negative?',
-            question_type: QuestionType.multiple,
-            points: 4,
-            answers: [
-              { answer_text: '-5', is_correct: true },
-              { answer_text: '6', is_correct: false },
-              { answer_text: '-7', is_correct: true },
-              { answer_text: '8', is_correct: false },
-            ],
-          },
-        ],
+        quiz_name: 'Quiz Test',
+        questions: [],
       };
-
-      const quizId = await quizResolver.createQuiz(createQuizInput);
-      const result = await quizResolver.deleteQuiz(quizId, 1);
+      const id = await quizResolver.createQuiz(createQuizInput);
+      const result = await quizResolver.deleteQuiz(id, user.id);
+      await userResolver.removeUser(user.id);
 
       expect(result).toBeTruthy();
     });
@@ -430,51 +330,18 @@ describe('QuizResolver', () => {
         access: [],
       });
 
-      const createQuizInput: CreateQuizInput = {
-        author_id: 1,
-        is_public: true,
+      jest.spyOn(quizRepository, 'findOne').mockResolvedValue({
+        quiz_id: 1,
         quiz_name: 'Quiz 1',
-        questions: [
-          {
-            question_text: 'What is 1+1?',
-            question_type: QuestionType.single,
-            points: 1,
-            answers: [
-              { answer_text: '1', is_correct: false },
-              { answer_text: '2', is_correct: true },
-              { answer_text: '3', is_correct: false },
-              { answer_text: '4', is_correct: false },
-            ],
-          },
-          {
-            question_text: 'What is 2+2?',
-            question_type: QuestionType.single,
-            points: 1,
-            answers: [
-              { answer_text: '1', is_correct: false },
-              { answer_text: '2', is_correct: false },
-              { answer_text: '3', is_correct: false },
-              { answer_text: '4', is_correct: true },
-            ],
-          },
-          {
-            question_text: 'Which numbers are negative?',
-            question_type: QuestionType.multiple,
-            points: 4,
-            answers: [
-              { answer_text: '-5', is_correct: true },
-              { answer_text: '6', is_correct: false },
-              { answer_text: '-7', is_correct: true },
-              { answer_text: '8', is_correct: false },
-            ],
-          },
-        ],
-      };
-
-      const quizId = await quizResolver.createQuiz(createQuizInput);
+        author: {
+          user_id: 2,
+          ...new User(),
+        },
+        ...new Quiz(),
+      });
 
       try {
-        await quizResolver.deleteQuiz(quizId, 2);
+        await quizResolver.deleteQuiz(1, 2);
       } catch (e) {
         expect(e.message).toEqual('User is not the author of the quiz');
         expect(e.getStatus()).toEqual(HttpStatus.FORBIDDEN);
@@ -559,67 +426,105 @@ describe('QuizResolver', () => {
 
   describe('submitQuiz', () => {
     it('should submit a quiz', async () => {
-      jest.spyOn(quizRepository, 'findOne').mockResolvedValue({
-        quiz_id: 1,
-        quiz_name: 'Quiz 1',
+      const teacher = await userResolver.createUser({
+        username: (Math.random() + 1).toString(36).substring(7),
+        role: 'teacher',
+      });
+
+      const user = await userResolver.createUser({
+        username: (Math.random() + 1).toString(36).substring(7),
+        role: 'student',
+      });
+
+      const createQuizInput: CreateQuizInput = {
+        author_id: teacher.id,
+        is_public: true,
+        quiz_name: (Math.random() + 1).toString(36).substring(7),
         questions: [
           {
-            question_id: 1,
             question_text: 'What is 1+1?',
             question_type: QuestionType.single,
             points: 1,
             answers: [
-              { answer_id: 1, answer_text: '1', is_correct: false },
-              { answer_id: 2, answer_text: '2', is_correct: true },
-              { answer_id: 3, answer_text: '3', is_correct: false },
-              { answer_id: 4, answer_text: '4', is_correct: false },
+              { answer_text: '1', is_correct: false },
+              { answer_text: '2', is_correct: true },
+              { answer_text: '3', is_correct: false },
+              { answer_text: '4', is_correct: false },
+            ],
+          },
+          {
+            question_text: 'What is 2+2?',
+            question_type: QuestionType.text,
+            points: 1,
+            answers: [{ answer_text: '', answer_response: '4' }],
+          },
+          {
+            question_text: 'Which numbers are negative?',
+            question_type: QuestionType.multiple,
+            points: 4,
+            answers: [
+              { answer_text: '-5', is_correct: true },
+              { answer_text: '6', is_correct: false },
+              { answer_text: '-7', is_correct: true },
+              { answer_text: '8', is_correct: false },
+            ],
+          },
+          {
+            question_text: 'Sort numbers in ascending order',
+            question_type: QuestionType.sorting,
+            points: 1,
+            answers: [
+              { answer_text: '1', order: 1 },
+              { answer_text: '2', order: 2 },
+              { answer_text: '3', order: 3 },
+              { answer_text: '6', order: 4 },
             ],
           },
         ],
-        ...new Quiz(),
-      });
+      };
 
-      jest.spyOn(userRepository, 'findOne').mockResolvedValue({
-        user_id: 2,
-        username: 'user2',
-        role: 'student',
-        quizzes: [],
-        answers: [],
-        quiz_results: [],
-        access: [],
-      });
+      const quizId = await quizResolver.createQuiz(createQuizInput);
 
-      jest.spyOn(quizAccessRepository, 'findOne').mockResolvedValue({
-        quiz: {
-          quiz_id: 1,
-          quiz_name: 'Quiz 1',
-          ...new Quiz(),
-        },
-        access_id: '1',
-        author: {
-          user_id: 1,
-          username: 'user1',
-          role: 'teacher',
-          ...new User(),
-        },
-        users_with_access: [],
-        is_public: true,
-      });
+      const questions = await quizResolver.getQuestionsForQuiz(quizId, user.id);
 
-      const submitQuizInput = {
-        quiz_id: 1,
-        user_id: 2,
+      const submitQuizInput: SubmitQuizInput = {
+        quiz_id: quizId,
+        user_id: user.id,
         answers: [
           {
-            question_id: 1,
-            answer_id: 1,
+            question_id: questions[0].question_id,
             answer_ids: [2],
+          },
+          {
+            question_id: questions[1].question_id,
+            answer_response: '4',
+          },
+          {
+            question_id: questions[2].question_id,
+            answer_ids: [
+              questions[2].answers[0].answer_id,
+              questions[2].answers[2].answer_id,
+            ],
+          },
+          {
+            question_id: questions[3].question_id,
+            sorted_answers: [
+              questions[3].answers[0].answer_id,
+              questions[3].answers[1].answer_id,
+              questions[3].answers[2].answer_id,
+              questions[3].answers[3].answer_id,
+            ],
           },
         ],
       };
 
       const result = await quizResolver.submitQuiz(submitQuizInput);
-      expect(result).toEqual({ score: 1, total: 1 });
+
+      expect(result).toBeTruthy();
+
+      await quizResolver.deleteQuiz(quizId, teacher.id);
+      await userResolver.removeUser(teacher.id);
+      await userResolver.removeUser(user.id);
     });
 
     it('should throw an error when quiz is not found', async () => {

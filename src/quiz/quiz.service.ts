@@ -427,7 +427,7 @@ export class QuizService {
   async deleteQuiz(quiz_id: number, user_id: number): Promise<boolean> {
     const quiz = await this.quizRepository.findOne({
       where: { quiz_id: quiz_id },
-      relations: ['author'],
+      relations: ['author', 'questions', 'questions.answers'],
     });
     if (!quiz) {
       throw new HttpException('Quiz not found', HttpStatus.NOT_FOUND);
@@ -439,6 +439,13 @@ export class QuizService {
       );
     }
     await this.entityManager.transaction(async (manager) => {
+      const questions = quiz.questions;
+      if (questions) {
+        for (const question of questions) {
+          await manager.delete(Answer, { question: question });
+        }
+      }
+      await manager.delete(UserAnswer, { quiz: quiz });
       await manager.delete(Question, { quiz: quiz });
       await manager.delete(QuizAccess, { quiz: quiz });
       await manager.delete(QuizResult, { quiz: quiz });
