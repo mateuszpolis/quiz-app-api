@@ -12,6 +12,7 @@ import { QuizResult } from './entities/quiz-result.entity';
 import { UserAnswer } from './entities/user-answer.entity';
 import { QuizResultsOutput } from './dto/quiz-results.output';
 import { QuestionOuptut } from './dto/question-output';
+import { SubmitQuizOutput } from './dto/submit-quiz.output';
 
 @Injectable()
 export class QuizService {
@@ -292,7 +293,13 @@ export class QuizService {
       await manager.save(newQuizResult);
     });
 
-    return { score, total };
+    const result: SubmitQuizOutput = {
+      score: score,
+      total: total,
+      quiz_id: quiz.quiz_id,
+      user_id: user.user_id,
+    };
+    return result;
   }
 
   async getResultStudent(

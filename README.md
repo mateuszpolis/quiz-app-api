@@ -92,14 +92,12 @@ createUser(createUserInput: CreateUserInput!): CreateUserOutput!
 
 input CreateUserInput {
 username: String!
-email: String!
 role: String!
 }
 
 type CreateUserOutput {
 id: ID!
 username: String!
-email: String!
 role: String!
 }
 
@@ -108,13 +106,11 @@ mutation {
   createUser(
     createUserInput: {
       username: "user1"
-      email: "user1@email.com"
       role: "student"
     }
   ) {
     id
     username
-    email
     role
   }
 }
@@ -127,7 +123,6 @@ removeUser(id: Float!): CreateUserOutput!
 type CreateUserOutput {
 id: ID!
 username: String!
-email: String!
 role: String!
 }
 
@@ -136,7 +131,6 @@ mutation {
   removeUser(id: 1) {
     id
     username
-    email
     role
   }
 }
@@ -298,8 +292,8 @@ mutation {
       quiz_id: 1
       answers: [
         { question_id: 1, answer_ids: [2] }
-        { question_id: 2, answer_ids: [1, 3, 4] }
-        { question_id: 3, sorted_answers: [1, 2, 3] }
+        { question_id: 2, answer_ids: [5, 7, 8] }
+        { question_id: 3, sorted_answers: [9, 10, 11] }
         { question_id: 4, answer_response: "May the force be with you" }
       ]
     }
@@ -343,7 +337,6 @@ query {
     total
     user {
       username
-      email
       role
     }
     user_answers {
@@ -353,6 +346,7 @@ query {
       question {
         question_text
       }
+      
     }
   }
 }
@@ -369,12 +363,13 @@ query {
     total
     user {
       username
-      email
       role
     }
     user_answers {
       user_answer_id
       answer_response
+      sorted_answers
+      answer_ids
       score
       question {
         question_text
