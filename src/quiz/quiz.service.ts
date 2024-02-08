@@ -60,8 +60,8 @@ export class QuizService {
       await manager.save(quiz);
 
       const quizAccess = manager.create(QuizAccess, {
-        quiz,
-        author,
+        quiz: quiz,
+        author: author,
         is_public: createQuizInput.is_public,
         users_with_access: createQuizInput.is_public
           ? null
@@ -74,19 +74,20 @@ export class QuizService {
           ...questionInput,
           quiz: quiz,
         });
-        await manager.save(Question, question, { reload: false });
-        console.log(question);
+        await manager.save(Question, question);
 
         if (!questionInput.answers || questionInput.answers.length === 0) {
           continue;
         }
+
+        console.log(question.question_id);
 
         for (const answerInput of questionInput.answers) {
           const answer = manager.create(Answer, {
             ...answerInput,
             question: question,
           });
-          await manager.save(Answer, answer, { reload: false });
+          await manager.save(Answer, answer);
         }
       }
 
@@ -114,6 +115,7 @@ export class QuizService {
       quizAccess.users_with_access.includes(user_id)
     ) {
       const questions = quiz.questions;
+      console.log(questions);
       const questionsOutput: QuestionOuptut[] = [];
       for (const question of questions) {
         questionsOutput.push({
@@ -123,6 +125,7 @@ export class QuizService {
           points: question.points,
           answers: question.answers,
         });
+        console.log(question.answers);
       }
       return questionsOutput;
     } else {
@@ -259,7 +262,6 @@ export class QuizService {
             );
           }
           let localScore: number = 0;
-          console.log('1');
           const correctAnswers = question.answers.sort(
             (a, b) => a.order - b.order,
           );
@@ -268,11 +270,9 @@ export class QuizService {
               localScore++;
             }
           }
-          console.log('3');
           score += (localScore / correctAnswers.length) * question.points;
           questionScore =
             (localScore / correctAnswers.length) * question.points;
-          console.log('4');
         }
 
         const userAnswer = manager.create(UserAnswer, {
@@ -393,9 +393,13 @@ export class QuizService {
     return returnResults;
   }
 
-  async grantAccessToQuiz(quiz_id: number, user_id: number): Promise<boolean> {
+  async grantAccessToQuiz(
+    quiz_id: number,
+    user_id: number,
+    teacher_id: number,
+  ): Promise<boolean> {
     const quiz = await this.quizRepository.findOne({
-      where: { quiz_id: quiz_id },
+      where: { quiz_id: quiz_id, author: { user_id: teacher_id } },
       relations: ['author'],
     });
     if (!quiz) {
